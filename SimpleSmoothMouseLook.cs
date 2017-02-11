@@ -31,8 +31,11 @@ public class SimpleSmoothMouseLook : MonoBehaviour
  
     void Update()
     {
+        if (Input.GetKeyDown (KeyCode.Escape))
+			Cursor.lockState = CursorLockMode.None;
         // Ensure the cursor is always locked when set
-        Cursor.lockState = CursorLockMode.Locked;
+        if(Input.GetMouseButtonDown(0))
+            Cursor.lockState = CursorLockMode.Locked;
  
         // Allow the script to clamp based on a desired target value.
         var targetOrientation = Quaternion.Euler(targetDirection);
