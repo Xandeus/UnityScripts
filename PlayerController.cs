@@ -42,19 +42,22 @@ public class PlayerController : NetworkBehaviour
             // convert vel to displacement and Move the character:
             controller.Move(vel * Time.deltaTime);
         }
-        if(Input.GetKeyDown(KeyCode.B)){
-            ToggleDeity();
-        }
         else
         {
-            var x = Input.GetAxis("Horizontal") * Time.deltaTime * playerSpeed*5;
-            var z = Input.GetAxis("Vertical") * Time.deltaTime * playerSpeed*5;
-            var r = Input.GetAxis("Rotational") * Time.deltaTime * playerSpeed*5;
+            var x = Input.GetAxis("Horizontal") * Time.deltaTime * playerSpeed*10;
+            var z = Input.GetAxis("Vertical") * Time.deltaTime * playerSpeed*10;
+            var r = Input.GetAxis("Rotational") * Time.deltaTime * playerSpeed*10;
             transform.Translate(x, 0, z);
             transform.Rotate(Vector3.up * r);
         }
+        if(Input.GetKeyDown(KeyCode.B)){
+            ToggleDeity();
+        }
+        
     }
     void ToggleDeity(){
+        Cursor.lockState = CursorLockMode.None;
+        GetComponentInChildren<SimpleSmoothMouseLook>().enabled = isDeity;
         controller = GetComponent<CharacterController>();
         mouseLook = GetComponentInChildren<SimpleSmoothMouseLook>();
         controller.enabled = isDeity;
