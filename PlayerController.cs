@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
-
+using UnityEngine.UI;
 public class PlayerController : NetworkBehaviour
 {
     public Transform bulletSpawn;
@@ -14,12 +14,16 @@ public class PlayerController : NetworkBehaviour
     private float jumpSpeed = 8f;
     private float gravity = 9.8f;
     private Vector3 vel;
+    [SerializeField]
+    Image ui;
     void Update()
     {
         if (!isLocalPlayer)
         {
-            if (gameObject.tag == "Player")
+            if (gameObject.tag == "Player"){
                 GetComponentInChildren<Camera>().enabled = false;
+                GetComponentInChildren<SimpleSmoothMouseLook>().enabled = false;
+            }
             return;
         }
         controller = GetComponent<CharacterController>();
@@ -50,14 +54,31 @@ public class PlayerController : NetworkBehaviour
             transform.Translate(x, 0, z);
             transform.Rotate(Vector3.up * r);
         }
-        if(Input.GetKeyDown(KeyCode.B)){
+        if(Input.GetKeyDown(KeyCode.X)){
             ToggleDeity();
         }
-        
+        if(Input.GetKeyDown(KeyCode.B)){
+            ui.enabled = !ui.enabled;
+        }
+        if(Input.GetButtonDown("Fire1")){
+            RaycastHit hit;
+                if (Physics.Raycast(gameObject.transform.position, GetComponentInChildren<Camera>().transform.forward, out hit, 2.0f))
+                {
+                    ResourceTree treeHealth = hit.collider.GetComponent<ResourceTree>();
+                    if(treeHealth != null){
+                        treeHealth.TakeDamage(10);
+                    }
+                    Debug.Log("You hit " + hit.collider.name);
+                    Debug.DrawLine(gameObject.transform.position,hit.point);
+                    Destroy(hit.collider.gameObject);
+                }
+
+        }
     }
     void ToggleDeity(){
         Cursor.lockState = CursorLockMode.None;
         GetComponentInChildren<SimpleSmoothMouseLook>().enabled = isDeity;
+        GetComponentInChildren<PlayerBuilding>().enabled = isDeity;
         controller = GetComponent<CharacterController>();
         mouseLook = GetComponentInChildren<SimpleSmoothMouseLook>();
         controller.enabled = isDeity;
@@ -73,7 +94,7 @@ public class PlayerController : NetworkBehaviour
     // This [Command] code is called on the Client …
     // … but it is run on the Server!
     [Command]
-    void CmdFire()
+    void CmdBuild()
     {
         // Create the Bullet from the Bullet Prefab
         // var bullet = (GameObject)Instantiate(

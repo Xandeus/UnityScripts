@@ -22,11 +22,23 @@ public class PlayerBuilding : NetworkBehaviour
     {
 
     }
-	void OnTriggerEnter(Collider other) {
-             if (other.gameObject.tag == "YourTag") {
-                Debug.Log("Its a hit!");
-             }
-	 }
+    [Command]
+    void CmdBuild()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(buildingSpawn.position, -buildingSpawn.up, out hit, 100.0f))
+        {
+            if (hit.collider.tag == "Terrain")
+            {
+                Vector3 placePos = hit.point;
+                placePos.x = Mathf.Round(placePos.x);
+                placePos.y = Mathf.Round(placePos.y);
+                placePos.z = Mathf.Round(placePos.z);
+                GameObject building = (GameObject)Instantiate(alterPrefab, placePos, buildingSpawn.rotation);
+                NetworkServer.Spawn(building);
+            }
+        }
+    }
     // Update is called once per frame
     void Update()
     {
@@ -36,7 +48,7 @@ public class PlayerBuilding : NetworkBehaviour
         }
         RaycastHit hit2;
 
-        if (Physics.Raycast(buildingSpawn.position, -Vector3.up, out hit2, 100.0f))
+        if (Physics.Raycast(buildingSpawn.position, -buildingSpawn.up, out hit2, 100.0f))
         {
             if (hit2.collider.tag == "Terrain")
             {
@@ -53,18 +65,7 @@ public class PlayerBuilding : NetworkBehaviour
             // buildingSpawn.rotation);
             if (!buildingActive)
             {
-                RaycastHit hit;
-                if (Physics.Raycast(buildingSpawn.position, -buildingSpawn.up, out hit, 100.0f))
-                {
-                    if (hit.collider.tag == "Terrain")
-                    {
-                        Vector3 placePos = hit.point;
-                        placePos.x = Mathf.Round(placePos.x);
-						placePos.y = Mathf.Round(placePos.y);
-                        placePos.z = Mathf.Round(placePos.z);
-                        Instantiate(alterPrefab, placePos, buildingSpawn.rotation);
-                    }
-                }
+                CmdBuild();
             }
         }
     }
