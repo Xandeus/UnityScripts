@@ -6,7 +6,8 @@ using UnityEngine;
 public class PlayerBuilding : NetworkBehaviour
 {
     [SerializeField]
-    GameObject alterPrefab;
+    GameObject[] buildings;
+    private GameObject currentBuilding;
     [SerializeField]
     Material highlight;
 
@@ -17,6 +18,10 @@ public class PlayerBuilding : NetworkBehaviour
     MeshRenderer buildingMesh;
 
     private bool buildingActive = false;
+    [SerializeField]
+
+    Canvas ui;
+    public float rotateSpeed = 10f;
     // Use this for initialization
     void Start()
     {
@@ -32,9 +37,9 @@ public class PlayerBuilding : NetworkBehaviour
             {
                 Vector3 placePos = hit.point;
                 placePos.x = Mathf.Round(placePos.x);
-                placePos.y = Mathf.Round(placePos.y);
+                placePos.y = Mathf.Round(placePos.y) + (currentBuilding.GetComponent<BoxCollider>().size.y/2)-currentBuilding.GetComponent<BoxCollider>().center.y;
                 placePos.z = Mathf.Round(placePos.z);
-                GameObject building = (GameObject)Instantiate(alterPrefab, placePos, buildingSpawn.rotation);
+                GameObject building = (GameObject)Instantiate(currentBuilding, placePos, buildingSpawn.rotation);
                 NetworkServer.Spawn(building);
             }
         }
@@ -46,27 +51,35 @@ public class PlayerBuilding : NetworkBehaviour
         {
             return;
         }
-        RaycastHit hit2;
-
-        if (Physics.Raycast(buildingSpawn.position, -buildingSpawn.up, out hit2, 100.0f))
-        {
-            if (hit2.collider.tag == "Terrain")
-            {
-                Debug.DrawLine(buildingSpawn.position, hit2.point);
-            }
+        if(Input.GetKeyDown(KeyCode.B)){
+            GetComponentInChildren<SimpleSmoothMouseLook>().ToggleMouseLock();
+            ui.enabled = !ui.enabled;
         }
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetButtonDown("Fire2"))
         {
-            buildingActive = !buildingActive;
-            buildingMesh.enabled = buildingActive;
             // GameObject alter = (GameObject)Instantiate(
             // alterPrefab,
             // buildingSpawn.position,
             // buildingSpawn.rotation);
-            if (!buildingActive)
+            if (buildingActive)
             {
                 CmdBuild();
+                buildingActive = false;
+                buildingMesh.enabled = false;
             }
         }
+        if(buildingActive){
+            buildingSpawn.Rotate(Vector3.up,Input.GetAxis("Rotational") * Time.deltaTime * rotateSpeed);
+        }
+    }
+    public void SetBuilding(int selection){
+        currentBuilding = buildings[selection];
+        ui.enabled = !ui.enabled;
+        GetComponentInChildren<SimpleSmoothMouseLook>().ToggleMouseLock();
+        buildingActive = true;
+        buildingMesh.GetComponent<MeshFilter>().mesh = buildings[selection].GetComponent<MeshFilter>().sharedMesh;
+        buildingMesh.enabled = true;
+        buildingSpawn.GetComponent<BoxCollider>().size = buildings[selection].GetComponent<BoxCollider>().size;
+
     }
 }

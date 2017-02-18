@@ -15,7 +15,6 @@ public class PlayerController : NetworkBehaviour
     private float gravity = 9.8f;
     private Vector3 vel;
     [SerializeField]
-    Image ui;
     void Update()
     {
         if (!isLocalPlayer)
@@ -54,11 +53,8 @@ public class PlayerController : NetworkBehaviour
             transform.Translate(x, 0, z);
             transform.Rotate(Vector3.up * r);
         }
-        if(Input.GetKeyDown(KeyCode.X)){
+        if(Input.GetKeyDown(KeyCode.F)){
             ToggleDeity();
-        }
-        if(Input.GetKeyDown(KeyCode.B)){
-            ui.enabled = !ui.enabled;
         }
         if(Input.GetButtonDown("Fire1")){
             RaycastHit hit;
@@ -76,7 +72,7 @@ public class PlayerController : NetworkBehaviour
         }
     }
     void ToggleDeity(){
-        Cursor.lockState = CursorLockMode.None;
+        GetComponentInChildren<SimpleSmoothMouseLook>().ToggleMouseLock();
         GetComponentInChildren<SimpleSmoothMouseLook>().enabled = isDeity;
         GetComponentInChildren<PlayerBuilding>().enabled = isDeity;
         controller = GetComponent<CharacterController>();

@@ -15,7 +15,7 @@ public class SimpleSmoothMouseLook : MonoBehaviour
     public Vector2 smoothing = new Vector2(3, 3);
     public Vector2 targetDirection;
     public Vector2 targetCharacterDirection;
- 
+    private bool allowMouseLock = true;
     // Assign this if there's a parent object controlling motion, such as a Character Controller.
     // Yaw rotation will affect this object instead of the camera if set.
     public GameObject characterBody;
@@ -28,13 +28,21 @@ public class SimpleSmoothMouseLook : MonoBehaviour
         // Set target direction for the character body to its inital state.
         if (characterBody) targetCharacterDirection = characterBody.transform.localRotation.eulerAngles;
     }
- 
+    public void ToggleMouseLock(){
+        allowMouseLock = !allowMouseLock;
+        if(allowMouseLock){
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else{
+            Cursor.lockState = CursorLockMode.None;
+        }
+    }
     void Update()
     {
         if (Input.GetKeyDown (KeyCode.Escape))
 			Cursor.lockState = CursorLockMode.None;
         // Ensure the cursor is always locked when set
-        if(Input.GetMouseButtonDown(0))
+        if(allowMouseLock && Input.GetMouseButtonDown(0))
             Cursor.lockState = CursorLockMode.Locked;
  
         // Allow the script to clamp based on a desired target value.
